@@ -1,0 +1,7 @@
+yt-dlp
+openai
+pysubs2
+python-dotenv
+whisperx
+transformers
+torch
