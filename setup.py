@@ -7,7 +7,7 @@ with io.open("README.md", encoding="utf-8") as f:
 
 setup(
     name="chnsub",
-    version="1.0.2",                    # bump this
+    version="1.0.2",
     description="Generate smart Chinese subtitles (SRT files)",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -26,8 +26,9 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "chnsub=chnsub.main:main",  # <— point into your package
+            "chnsub=chnsub.main:main",
         ],
     },
     python_requires=">=3.7",
+    include_package_data=True,
 )
