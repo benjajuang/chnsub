@@ -7,7 +7,7 @@ with io.open("README.md", encoding="utf-8") as f:
 
 setup(
     name="chnsub",
-    version="1.0.3",
+    version="1.0.5",
     description="Generate smart Chinese subtitles (SRT files)",
     long_description=long_description,
     long_description_content_type="text/markdown",
