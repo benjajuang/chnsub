@@ -9,12 +9,15 @@ import pysubs2
 from dotenv import load_dotenv
 import openai
 
-# Load environment variables
-load_dotenv(os.path.expanduser("~/.env"))
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-if not client.api_key:
+# Load .env from the project root (where you run the script)
+load_dotenv()
+
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
     sys.stderr.write("Error: OPENAI_API_KEY not set.\n")
     sys.exit(1)
+
+client = openai.OpenAI(api_key=api_key)
 
 def sanitize_filename(name: str) -> str:
     return re.sub(r"[\\/*?:\"<>|]", "_", name)
@@ -85,7 +88,7 @@ def generate_srt(aligned, output_path: str):
     for seg in aligned.get('segments', []):
         words  = seg.get('words', [])
         tokens = [w['word'].replace('▁', '') for w in words]
-        times  = [(w['start'], w['end'])         for w in words]
+        times  = [(w['start'], w['end']) for w in words]
         raw    = "".join(tokens)
         if not raw:
             continue
@@ -96,8 +99,7 @@ def generate_srt(aligned, output_path: str):
         # 2) Split into ≤MAX_CHARS-char lines
         lines = split_lines(punct, max_chars=MAX_CHARS)
 
-        # 3) Merge any lines shorter than MIN_MERGE into previous,
-        #    but only if result stays ≤ MAX_CHARS
+        # 3) Merge short lines
         merged = []
         for line in lines:
             if merged and len(line) < MIN_MERGE:
@@ -132,7 +134,6 @@ def generate_srt(aligned, output_path: str):
                         break
 
             if idx < 0:
-                # Attach dropped line to previous subtitle
                 if subs.events:
                     subs.events[-1].text += line
                 continue
@@ -157,11 +158,11 @@ def generate_srt(aligned, output_path: str):
             s = times[start_i][0]
             e = times[end_i][1]
 
-            # 5) Second GPT pass: final cleanup
+            # 5) Final GPT pass
             txt = final_cleanup(line)
 
             subs.append(pysubs2.SSAEvent(
-                start=int(s*1000), end=int(e*1000), text=txt
+                start=int(s * 1000), end=int(e * 1000), text=txt
             ))
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
